@@ -34,8 +34,10 @@ Route::middleware([
 
         // Orders admin routes 👇
         Route::get('/admin/orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');
+        Route::get('/admin/orders/export', [AdminOrderController::class, 'export'])->name('admin.orders.export');
         Route::get('/admin/orders/{id}', [AdminOrderController::class, 'show'])->name('admin.orders.show');
         Route::patch('/admin/orders/{id}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.updateStatus');
+        
     });
 
     // === Pelanggan ===
