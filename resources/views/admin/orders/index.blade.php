@@ -26,37 +26,78 @@
                 <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
                 <option value="diproses" {{ request('status') == 'diproses' ? 'selected' : '' }}>Diproses</option>
                 <option value="dikirim" {{ request('status') == 'dikirim' ? 'selected' : '' }}>Dikirim</option>
-                        <option value="selesai" {{ request('status') == 'selesai' ? 'selected' : '' }}>Selesai</option>
-                </select>
+                <option value="selesai" {{ request('status') == 'selesai' ? 'selected' : '' }}>Selesai</option>
+            </select>
         </form>
 
-        @foreach ($batches as $batch)
-                <div class="mb-4 p-4 bg-white rounded-lg shadow border">
-                        <div class=" flex justify-between items-center mb-2"> <div>
-                    <p class="text-lg font-semibold">Batch #{{ $batch->id }}</p>
-                    <p class="text-sm text-gray-600">Nama: {{ $batch->user->name }}</p>
-                    <p class="text-sm text-gray-600">Total: Rp{{ number_format($batch->total_price, 0, ',', '.') }}</p>
-                </div>
-                <span class=" px-3 py-1 rounded-full text-sm font-medium @if($batch->status === 'pending') bg-yellow-100
-                    text-yellow-800
-                @elseif($batch->status === 'diproses') bg-blue-100 text-blue-800
-                    @elseif($batch->status === 'dikirim') bg-indigo-100 text-indigo-800
-                    @elseif($batch->status === 'selesai') bg-green-100 text-green-800
-                            @else bg-gray-100 text-gray-700
-                        @endif
-                    ">
-                    {{ ucfirst($batch->status) }}
-                </span>
-            </div>
-            <a href="{{ route('admin.orders.show', $batch->id) }}"            
-                class="inline-block mt-2 text-sm text-blue-600 hover:underline">
-                Lihat detail
-            </a>
-            </div>
-        @endforeach
+        <div class="space-y-8">
+            @foreach($batches as $batch)
+                <div class="bg-stone-50 border border-stone-200 rounded-xl shadow-md p-6">
+                    <div class="flex justify-between items-center mb-4 pb-4 border-b border-stone-200">
+                        <div>
+                            <h3 class="text-xl font-bold text-amber-900">Pesanan #{{ $batch->id }}</h3>
+                            <p class="text-sm text-stone-600">Tanggal Pesan: {{ $batch->created_at->format('d M Y, H:i') }}
+                            </p>
+                            <p class="text-sm text-stone-600">Pelanggan: {{ $batch->user->name }}</p>
+                        </div>
+                        <div class="text-right space-y-1">
+                            <p class="text-lg font-semibold text-gray-700">
+                                Total:
+                                <span class="text-2xl font-extrabold text-amber-700">
+                                    Rp {{ number_format($batch->total_price, 0, ',', '.') }}
+                                </span>
+                            </p>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                            @if($batch->status === 'pending') bg-yellow-100 text-yellow-800
+                            @elseif($batch->status === 'diproses') bg-blue-100 text-blue-800
+                            @elseif($batch->status === 'dikirim') bg-indigo-100 text-indigo-800
+                            @elseif($batch->status === 'selesai') bg-green-100 text-green-800
+                                @else bg-gray-100 text-gray-800
+                            @endif
+                        ">
+                                {{ ucfirst($batch->status) }}
+                            </span>
+                        </div>
+                    </div>
 
-    <div class="mt-4">
-        {{ $batches->links() }}
-    </div>
+                    <h4 class="text-lg font-semibold text-gray-800 mb-3">Detail Item:</h4>
+                    <div class="space-y-4">
+                        @foreach($batch->orders as $item)
+                            <div class="flex items-center space-x-4 border-b pb-4 last:border-b-0 last:pb-0">
+                                @if($item->product && $item->product->gambar)
+                                    <img src="{{ asset('storage/' . $item->product->gambar) }}"
+                                        alt="{{ $item->product->nama }}" class="w-16 h-16 object-cover rounded-lg shadow">
+                                @else
+                                    <div
+                                        class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 text-xs">
+                                        No Image
+                                    </div>
+                                @endif
+                                <div class="flex-1">
+                                    <p class="text-lg font-medium text-gray-900">
+                                        {{ $item->product->nama ?? 'Produk tidak ditemukan' }}</p>
+                                    <p class="text-sm text-gray-600">Kuantitas: {{ $item->quantity }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-md font-semibold text-gray-700">Rp
+                                        {{ number_format($item->total_price ?? 0, 0, ',', '.') }}</p>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <div class="mt-4 text-right">
+                        <a href="{{ route('admin.orders.show', $batch->id) }}"
+                            class="inline-block text-sm text-blue-600 hover:underline">
+                            Lihat detail
+                        </a>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+
+        <div class="mt-4">
+            {{ $batches->links() }}
+        </div>
     </div>
 </x-app-layout>

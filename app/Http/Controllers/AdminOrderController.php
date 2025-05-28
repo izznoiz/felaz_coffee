@@ -29,12 +29,15 @@ class AdminOrderController extends Controller
         return view('admin.orders.show', compact('batch'));
     }
 
-    public function updateStatus(Request $request, OrdersBatch $batch)
+    public function updateStatus(Request $request, OrdersBatch $batch, $id)
     {
-        $request->validate(['status' => 'required|string']);
-        $batch->update(['status' => $request->status]);
+        // $request->validate(['status' => 'required|string']);
+        // $batch->update(['status' => $request->status]);
+        $batch = OrdersBatch::findOrFail($id);
+        $batch->status = $request->status;
+        $batch->save();
 
-        return back()->with('success', 'Status pesanan diperbarui.');
+        return redirect()->route('admin.orders.show', $id)->with('success', 'Status pesanan berhasil diperbarui.');
     }
 
     public function export(Request $request)

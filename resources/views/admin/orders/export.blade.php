@@ -28,7 +28,7 @@
             <tbody>
                 @foreach ($batch->orders as $order)
                     <tr>
-                        <td>{{ $order->product->name }}</td>
+                        <td>{{ $order->product->nama }}</td>
                         <td>{{ $order->quantity }}</td>
                         <td>Rp{{ number_format($order->total_price, 0, ',', '.') }}</td>
                     </tr>
