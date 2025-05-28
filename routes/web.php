@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\AdminOrderController;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -30,6 +31,11 @@ Route::middleware([
         Route::put('/produk/{produk}', [ProdukController::class, 'update'])->name('produk.update');
         Route::delete('/produk/{produk}', [ProdukController::class, 'destroy'])->name('produk.destroy');
         Route::get('/admin/produk/{produk}', [ProdukController::class, 'show'])->name('produk.show');
+
+        // Orders admin routes 👇
+        Route::get('/admin/orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');
+        Route::get('/admin/orders/{id}', [AdminOrderController::class, 'show'])->name('admin.orders.show');
+        Route::patch('/admin/orders/{id}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.updateStatus');
     });
 
     // === Pelanggan ===
@@ -48,37 +54,6 @@ Route::middleware([
         Route::post('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
     });
 
-
-
-    // // Untuk admin
-    // Route::middleware(['auth', 'role:admin'])->group(function () {
-    //     Route::resource('produk', ProdukController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
-    // });
-
-    // // Untuk semua user (termasuk pelanggan)
-    // Route::middleware(['auth', 'role:pelanggan'])->group(function () {
-    //     Route::resource('produk', ProdukController::class)->only(['index', 'show']);
-    //     Route::post('/products/{product}/order', [OrderController::class, 'store'])->name('orders.store');
-    //     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    // });
-
-
-
-    // Route::middleware(['auth', new RoleMiddleware('admin')])->group(function () {
-    //     Route::get('/produk/create', [ProdukController::class, 'create'])->name('produk.create');
-    //     Route::post('/produk', [ProdukController::class, 'store'])->name('produk.store');
-    // });
-
-    // Route::middleware(['auth', new RoleMiddleware('pelanggan')])->group(function () {
-    //     Route::get('/pesan', [PesananController::class, 'index'])->name('pesan.index');
-    // });
-
-
-    // Ubah dashboard ke produk
-    // Route::get('/dashboard', function () {
-    //     return redirect()->route('admin.produk.index');
-    // })->name('dashboard');
-
     Route::get('/dashboard', function () {
         if (Auth::user()->hasRole(roles: 'admin')) {
             return redirect()->route('admin.produk.index');
@@ -87,7 +62,4 @@ Route::middleware([
         }
     })->name('dashboard');
 
-
-    // Semua route produk (index, create, store, show, edit, update, destroy)
-    // Route::resource('produk', ProdukController::class);
 });

@@ -7,18 +7,17 @@ use Illuminate\Http\Request;
 
 class AdminOrderController extends Controller
 {
-
-
     public function index()
     {
         $batches = OrdersBatch::with('orders.product', 'user')->latest()->paginate(10);
         return view('admin.orders.index', compact('batches'));
     }
 
-    public function show(OrdersBatch $batch)
+    public function show($id)
     {
-        $batch->load('orders.product', 'user');
+        $batch = OrdersBatch::with('orders.product', 'user')->findOrFail($id);
         return view('admin.orders.show', compact('batch'));
+        
     }
 
     public function updateStatus(Request $request, OrdersBatch $batch)
