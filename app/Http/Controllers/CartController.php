@@ -6,6 +6,7 @@ use App\Models\CartItem;
 use App\Models\Produk;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\OrdersBatch;
 // use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -60,11 +61,24 @@ class CartController extends Controller
         if ($cartItems->isEmpty()) {
             return redirect()->back()->with('error', 'Keranjang kosong.');
         }
+        $totalPriceBatch = 0;
+        foreach ($cartItems as $item) {
+            $totalPriceBatch = $totalPriceBatch + ($item->product->harga * $item->quantity);
+        }
+        $orderBatch = OrdersBatch::create([
+            'user_id' => auth()->id(),
+            'total_price' => $totalPriceBatch,
+            'status' => 'pending',
+            'user_name' => auth()->id()
+        ]);
 
+        // Get the ID of the created order batch
+        $orderBatchId = $orderBatch->id;
 
         foreach ($cartItems as $item) {
             $totalPrice = $item->product->harga * $item->quantity;
             $order = Order::create([
+                'order_batch_id' => $orderBatchId,
                 'user_id' => auth()->id(),
                 'product_id' => $item->product_id,
                 'quantity' => $item->quantity,

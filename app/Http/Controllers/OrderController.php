@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\Produk;
+use App\Models\OrdersBatch;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -32,11 +33,10 @@ class OrderController extends Controller
 
     public function index()
     {
-        $orders = Order::with('product')
+        $ordersBatches = OrdersBatch::with('orders.product')
             ->where('user_id', auth()->id())
             ->latest()
             ->paginate(10); // 10 orders per page
-
-        return view('orders.index', compact('orders'));
+        return view('orders.index', compact('ordersBatches'));
     }
 }

@@ -46,7 +46,6 @@ Route::middleware([
         Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
         Route::delete('/cart/remove/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
         Route::post('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
-        Route::get('cart/orders', [CartController::class, 'index'])->name('orders.index');
     });
 
 
