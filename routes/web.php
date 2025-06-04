@@ -6,6 +6,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\AdminOrderController;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\ChatbotController;
 
 
 
@@ -37,7 +38,6 @@ Route::middleware([
         Route::get('/admin/orders/export', [AdminOrderController::class, 'export'])->name('admin.orders.export');
         Route::get('/admin/orders/{id}', [AdminOrderController::class, 'show'])->name('admin.orders.show');
         Route::patch('/admin/orders/{id}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.updateStatus');
-        
     });
 
     // === Pelanggan ===
@@ -64,4 +64,7 @@ Route::middleware([
         }
     })->name('dashboard');
 
+
+
+    Route::post('/chatbot', [ChatbotController::class, 'handle']);
 });
