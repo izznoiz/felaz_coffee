@@ -5,3 +5,26 @@
 [x-cloak] {
     display: none;
 }
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0%;
+    height: 2px;
+    bottom: -4px; /* Sesuaikan posisi garis bawah */
+    left: 0;
+    background-color: #f97316; /* Warna orange-500 Tailwind */
+    transition: width 0.3s ease-in-out; /* Animasi lebar */
+}
+
+.nav-link:hover::after {
+    width: 100%; /* Lebar penuh saat hover */
+}
+
+/* Ini untuk link yang aktif (gunakan kelas 'active' yang diberikan oleh x-nav-link) */
+.nav-link.active::after {
+    width: 100%;
+}
+.nav-link.active {
+    color: #f97316;
+}

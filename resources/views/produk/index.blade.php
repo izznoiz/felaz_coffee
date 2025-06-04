@@ -1,10 +1,10 @@
 <x-app-layout>
-    <x-slot name="header">
+    {{-- <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Daftar Produk') }}
         </h2>
-    </x-slot>
-
+    </x-slot> --}}
+<main class="pt-24">
     <div class="py-8 max-w-7xl mx-auto px-4">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
@@ -15,16 +15,6 @@
                         class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">
                         Tambah Produk
                     </a>
-                @endif
-
-                {{-- Tombol Lihat Keranjang untuk Pelanggan --}}
-                @if(auth()->user()->role === 'pelanggan')
-                    <div class="flex justify-end mb-4">
-                        <a href="{{ route('cart.index') }}"
-                            class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded">
-                            🛒 Lihat Keranjang
-                        </a>
-                    </div>
                 @endif
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -59,4 +49,5 @@
             </div>
         </div>
     </div>
+</main>
 </x-app-layout>
