@@ -23,6 +23,14 @@
                             {{ __('Riwayat Pesanan') }}
                         </x-nav-link>
                     @endif
+
+                    {{-- tombol tambah produk admin --}}
+                    @if(auth()->user()->role === 'admin')
+                    <x-nav-link href="{{ route('produk.create') }}" :active="request()->routeIs('produk.create')"
+                            class="{{ request()->routeIs('produk.create') ? 'text-amber-600 after:w-5' : 'text-gray-600 after:w-0' }} relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:h-0.5 after:bg-amber-600 after:rounded-full after:transition-all after:duration-300 hover:text-gray-800 hover:after:w-full transition-colors duration-200 h-full flex items-center px-4">
+                            {{ __('Tambah Produk') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
         </div>

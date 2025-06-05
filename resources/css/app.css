@@ -13,7 +13,7 @@
     height: 2px;
     bottom: -4px; /* Sesuaikan posisi garis bawah */
     left: 0;
-    background-color: #f97316; /* Warna orange-500 Tailwind */
+    background-color: #7B3F00; /* Warna orange-500 Tailwind */
     transition: width 0.3s ease-in-out; /* Animasi lebar */
 }
 
@@ -24,6 +24,7 @@
 /* Ini untuk link yang aktif (gunakan kelas 'active' yang diberikan oleh x-nav-link) */
 .nav-link.active::after {
     width: 100%;
+    background-color: #7B3F00;
 }
 .nav-link.active {
     color: #f97316;

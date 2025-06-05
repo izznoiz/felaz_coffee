@@ -7,6 +7,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\AdminOrderController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\XenditController;
 
 
 
@@ -54,6 +55,10 @@ Route::middleware([
         Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
         Route::delete('/cart/remove/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
         Route::post('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
+        Route::get('/checkout/success', [CartController::class, 'checkoutSuccess'])->name('checkout.success');
+        Route::get('/checkout/success', [CartController::class, 'handlePaymentSuccess'])->name('checkout.success');
+        Route::get('/checkout/failed', function () {return view('checkout.failed');})->name('return.checkout');
+        Route::post('/xendit/webhook', [XenditController::class, 'handleWebhook']);
     });
 
     Route::get('/dashboard', function () {

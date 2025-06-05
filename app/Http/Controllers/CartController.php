@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\CartItem;
 use App\Models\Produk;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrdersBatch;
+use Xendit\Xendit;
 // use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -57,39 +60,148 @@ class CartController extends Controller
 
     public function checkout(Request $request)
     {
-        $cartItems = CartItem::where('user_id', auth()->id())->get();
+        $cartItems = CartItem::where('user_id', auth()->id())->with('product')->get();
+
         if ($cartItems->isEmpty()) {
             return redirect()->back()->with('error', 'Keranjang kosong.');
         }
-        $totalPriceBatch = 0;
-        foreach ($cartItems as $item) {
-            $totalPriceBatch = $totalPriceBatch + ($item->product->harga * $item->quantity);
-        }
-        $orderBatch = OrdersBatch::create([
-            'user_id' => auth()->id(),
-            'total_price' => $totalPriceBatch,
-            'status' => 'pending',
-            'user_name' => auth()->id()
+
+        $user = auth()->user();
+        $totalPrice = $cartItems->sum(fn($item) => $item->product->harga * $item->quantity);
+
+        // Generate external ID
+        $externalId = 'order-' . uniqid();
+
+        // (Opsional) Simpan snapshot cart + external_id ke tabel `pending_checkouts`
+        DB::table('pending_checkouts')->insert([
+            'external_id' => $externalId,
+            'user_id' => $user->id,
+            'cart_snapshot' => json_encode($cartItems),
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
-        // Get the ID of the created order batch
-        $orderBatchId = $orderBatch->id;
+        // Buat invoice di Xendit
+        $response = Http::withBasicAuth(env('XENDIT_API_KEY'), '')
+            ->post('https://api.xendit.co/v2/invoices', [
+                'external_id' => $externalId,
+                'amount' => $totalPrice,
+                'payer_email' => $user->email,
+                'description' => 'Pembayaran Pesanan Kopi Online',
+                'success_redirect_url' => route('checkout.success', ['external_id' => $externalId]),
+                'failure_redirect_url' => route('return.checkout'),
+            ]);
+
+        if ($response->successful()) {
+            return redirect($response['invoice_url']);
+        } else {
+            return back()->with('error', 'Gagal membuat invoice. Coba lagi.');
+        }
+    }
+
+    public function handlePaymentSuccess(Request $request)
+    {
+        $externalId = $request->get('external_id');
+
+        // Ambil data dari pending_checkouts
+        $pending = DB::table('pending_checkouts')->where('external_id', $externalId)->first();
+
+        if (!$pending) {
+            return redirect()->route('orders.index')->with('error', 'Pembayaran tidak valid atau sudah diproses.');
+        }
+
+        $cartItems = json_decode($pending->cart_snapshot);
+
+        $totalPriceBatch = array_reduce($cartItems, function ($carry, $item) {
+            return $carry + ($item->product->harga * $item->quantity);
+        }, 0);
+
+        // Simpan OrdersBatch
+        $orderBatch = OrdersBatch::create([
+            'user_id' => $pending->user_id,
+            'total_price' => $totalPriceBatch,
+            'status' => 'pending',
+            'user_name' => $pending->user_id, // atau ambil user name asli jika perlu
+        ]);
 
         foreach ($cartItems as $item) {
-            $totalPrice = $item->product->harga * $item->quantity;
-            $order = Order::create([
-                'order_batch_id' => $orderBatchId,
-                'user_id' => auth()->id(),
-                'product_id' => $item->product_id,
+            Order::create([
+                'order_batch_id' => $orderBatch->id,
+                'user_id' => $pending->user_id,
+                'product_id' => $item->product->id,
                 'quantity' => $item->quantity,
-                'total_price' => $totalPrice,
-                'status' => 'pending'
+                'total_price' => $item->product->harga * $item->quantity,
+                'status' => 'pending',
             ]);
         }
 
-        // Kosongkan keranjang
-        CartItem::where('user_id', auth()->id())->delete();
+        // Kosongkan keranjang & pending_checkouts
+        CartItem::where('user_id', $pending->user_id)->delete();
+        DB::table('pending_checkouts')->where('external_id', $externalId)->delete();
 
-        return redirect()->route('orders.index')->with('success', 'Pesanan berhasil dibuat!');
+        return redirect()->route('orders.index')->with('success', 'Pembayaran berhasil! Pesananmu sudah masuk.');
     }
+
+    // public function checkoutSuccess(Request $request)
+    // {
+    //     return view('checkout.success'); // pastikan kamu punya file resources/views/checkout/success.blade.php
+    // }
+
+
+    // public function checkout(Request $request)
+    // {
+    //     $cartItems = CartItem::where('user_id', auth()->id())->get();
+    //     if ($cartItems->isEmpty()) {
+    //         return redirect()->back()->with('error', 'Keranjang kosong.');
+    //     }
+    //     $totalPriceBatch = 0;
+    //     foreach ($cartItems as $item) {
+    //         $totalPriceBatch = $totalPriceBatch + ($item->product->harga * $item->quantity);
+    //     }
+    //     $orderBatch = OrdersBatch::create([
+    //         'user_id' => auth()->id(),
+    //         'total_price' => $totalPriceBatch,
+    //         'status' => 'pending',
+    //         'user_name' => auth()->id()
+    //     ]);
+
+    //     // Get the ID of the created order batch
+    //     $orderBatchId = $orderBatch->id;
+
+    //     foreach ($cartItems as $item) {
+    //         $totalPrice = $item->product->harga * $item->quantity;
+    //         $order = Order::create([
+    //             'order_batch_id' => $orderBatchId,
+    //             'user_id' => auth()->id(),
+    //             'product_id' => $item->product_id,
+    //             'quantity' => $item->quantity,
+    //             'total_price' => $totalPrice,
+    //             'status' => 'pending'
+    //         ]);
+    //     }
+
+    //     // Kosongkan keranjang
+    //     CartItem::where('user_id', auth()->id())->delete();
+
+    //     return redirect()->route('orders.index')->with('success', 'Pesanan berhasil dibuat!');
+    // }
+
+    // public function buatInvoice()
+    // {
+    //     // Set API key
+    //     Xendit::setApiKey(config('xendit.api_key'));
+
+    //     // Buat parameter invoice
+    //     $params = [
+    //         'external_id' => 'order-001',
+    //         'payer_email' => 'pelanggan@contoh.com',
+    //         'description' => 'Pesanan Kopi Laravel',
+    //         'amount' => 75000
+    //     ];
+
+    //     // Buat invoice dan redirect user ke link pembayaran
+    //     $invoice = \Xendit\Invoice::create($params);
+
+    //     return redirect($invoice['invoice_url']);
+    // }
 }

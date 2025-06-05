@@ -5,6 +5,7 @@
         </h2>
     </x-slot> --}}
 
+        <main class="pt-24">
     <div class="py-8">
         <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white shadow-sm sm:rounded-lg p-6">
@@ -72,4 +73,5 @@
             </div>
         </div>
     </div>
+        </main>
 </x-app-layout>
