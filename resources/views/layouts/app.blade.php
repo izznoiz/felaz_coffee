@@ -122,7 +122,7 @@
                 chatBox.scrollTop = chatBox.scrollHeight;
 
                 try {
-                    const res = await fetch("https://c9bc-34-48-4-212.ngrok-free.app/chat", {
+                    const res = await fetch("https://9297-34-31-213-105.ngrok-free.app/chat", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
