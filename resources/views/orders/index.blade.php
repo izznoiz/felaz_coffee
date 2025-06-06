@@ -37,9 +37,17 @@
                                 </div>
                                 <div class="text-right">
                                     <p class="text-lg font-semibold text-gray-700">Total: <span class="text-2xl font-extrabold text-amber-700">Rp {{ number_format($batch->total_price) }}</span></p>
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $batch->status == 'pending' ? 'bg-yellow-100 text-yellow-800' : ($batch->status == 'completed' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800') }}">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                                        @if($batch->status === 'pending') bg-yellow-100 text-yellow-800
+                                        @elseif($batch->status === 'diproses') bg-blue-100 text-blue-800
+                                        @elseif($batch->status === 'dikirim') bg-indigo-100 text-indigo-800
+                                        @elseif($batch->status === 'selesai') bg-green-100 text-green-800
+                                            @else bg-gray-100 text-gray-800
+                                        @endif
+                                    ">
                                         {{ ucfirst($batch->status) }}
                                     </span>
+
                                 </div>
                             </div>
 

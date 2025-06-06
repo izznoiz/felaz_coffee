@@ -39,6 +39,12 @@
                     {{ __('Tambah Produk') }}
                 </x-nav-link>
             @endif
+
+            @if(auth()->check() && $user->role === 'admin')
+                <x-nav-link href="{{ route('admin.orders.index') }}" :active="request()->routeIs('admin.orders.index')" class="nav-menu-item">
+                    {{ __('Pesanan') }}
+                </x-nav-link>
+            @endif
         </div>
 
         {{-- Menu Kanan --}}

@@ -64,7 +64,7 @@
         </button>
 
         <!-- Chat Widget -->
-        <div x-show="open" x-transition
+        <div x-show="open" x-cloak x-transition
             class="mt-2 w-80 h-96 bg-white shadow-xl rounded-xl border border-gray-300 flex flex-col overflow-hidden">
 
             <!-- Header -->
