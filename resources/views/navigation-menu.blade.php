@@ -7,33 +7,37 @@
             </a>
         </div>
 
-        <div class="hidden sm:flex relative items-center bg-white shadow-lg rounded-full h-16 max-w-xl mx-auto md:ml-auto md:mr-auto px-4">
-            <div class="flex flex-grow justify-center h-full">
-                <div class="flex space-x-6 items-center h-full">
-                    {{-- Link Home (selalu ada) --}}
-                    <x-nav-link href="{{ route('produk.index') }}" :active="request()->routeIs('produk.index')"
-                        class="{{ request()->routeIs('produk.index') ? 'text-amber-600 after:w-5' : 'text-gray-600 after:w-0' }} relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:h-0.5 after:bg-amber-600 after:rounded-full after:transition-all after:duration-300 hover:text-gray-800 hover:after:w-full transition-colors duration-200 h-full flex items-center px-4">
-                        {{ __('Home') }}
-                    </x-nav-link>
+        {{-- Ganti bagian nav tengah dengan ini --}}
+<div class="hidden sm:flex items-center justify-center space-x-6 h-full mx-auto">
+    {{-- Home --}}
+    <x-nav-link href="{{ route('produk.index') }}" :active="request()->routeIs('produk.index')"
+        class="relative px-3 py-2 font-medium text-sm text-gray-700 hover:text-amber-600 transition duration-300
+        after:absolute after:left-0 after:bottom-0 after:w-0 after:h-0.5 after:bg-amber-600 after:transition-all after:duration-300
+        hover:after:w-full {{ request()->routeIs('produk.index') ? 'text-amber-600 after:w-full' : '' }}">
+        {{ __('Home') }}
+    </x-nav-link>
 
-                    {{-- Riwayat Pesanan (hanya jika user adalah 'pelanggan' dan login) --}}
-                    @if(auth()->check() && auth()->user()->role === 'pelanggan')
-                        <x-nav-link href="{{ route('orders.index') }}" :active="request()->routeIs('orders.index')"
-                            class="{{ request()->routeIs('orders.index') ? 'text-amber-600 after:w-5' : 'text-gray-600 after:w-0' }} relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:h-0.5 after:bg-amber-600 after:rounded-full after:transition-all after:duration-300 hover:text-gray-800 hover:after:w-full transition-colors duration-200 h-full flex items-center px-4">
-                            {{ __('Riwayat Pesanan') }}
-                        </x-nav-link>
-                    @endif
+    {{-- Riwayat (pelanggan) --}}
+    @if(auth()->check() && auth()->user()->role === 'pelanggan')
+        <x-nav-link href="{{ route('orders.index') }}" :active="request()->routeIs('orders.index')"
+            class="relative px-3 py-2 font-medium text-sm text-gray-700 hover:text-amber-600 transition duration-300
+            after:absolute after:left-0 after:bottom-0 after:w-0 after:h-0.5 after:bg-amber-600 after:transition-all after:duration-300
+            hover:after:w-full {{ request()->routeIs('orders.index') ? 'text-amber-600 after:w-full' : '' }}">
+            {{ __('Riwayat Pesanan') }}
+        </x-nav-link>
+    @endif
 
-                    {{-- tombol tambah produk admin --}}
-                    @if(auth()->user()->role === 'admin')
-                    <x-nav-link href="{{ route('produk.create') }}" :active="request()->routeIs('produk.create')"
-                            class="{{ request()->routeIs('produk.create') ? 'text-amber-600 after:w-5' : 'text-gray-600 after:w-0' }} relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:h-0.5 after:bg-amber-600 after:rounded-full after:transition-all after:duration-300 hover:text-gray-800 hover:after:w-full transition-colors duration-200 h-full flex items-center px-4">
-                            {{ __('Tambah Produk') }}
-                        </x-nav-link>
-                    @endif
-                </div>
-            </div>
-        </div>
+    {{-- Tambah Produk (admin) --}}
+    @if(auth()->check() && auth()->user()->role === 'admin')
+        <x-nav-link href="{{ route('produk.create') }}" :active="request()->routeIs('produk.create')"
+            class="relative px-3 py-2 font-medium text-sm text-gray-700 hover:text-amber-600 transition duration-300
+            after:absolute after:left-0 after:bottom-0 after:w-0 after:h-0.5 after:bg-amber-600 after:transition-all after:duration-300
+            hover:after:w-full {{ request()->routeIs('produk.create') ? 'text-amber-600 after:w-full' : '' }}">
+            {{ __('Tambah Produk') }}
+        </x-nav-link>
+    @endif
+</div>
+
 
         <div class="flex items-center space-x-4 ml-auto"> {{-- Menggunakan ml-auto untuk dorong ke kanan --}}
             {{-- Ikon Keranjang (hanya jika user adalah 'pelanggan') --}}
