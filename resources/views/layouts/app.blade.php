@@ -223,7 +223,7 @@ document.addEventListener("DOMContentLoaded", function () {
         showTypingIndicator();
 
         try {
-            const response = await fetch("https://9278-34-48-213-248.ngrok-free.app/chat", {
+            const response = await fetch("http://165.22.103.119:5000/chat", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
