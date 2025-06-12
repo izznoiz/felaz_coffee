@@ -233,6 +233,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
 
             const data = await response.json();
+            console.log(data);
             const reply = data.response || "Maaf, terjadi kesalahan dalam memproses permintaan Anda.";
             
             removeTypingIndicator();
