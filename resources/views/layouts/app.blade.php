@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'Felaz Coffee') }}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -223,7 +223,7 @@ document.addEventListener("DOMContentLoaded", function () {
         showTypingIndicator();
 
         try {
-            const response = await fetch("https://9278-34-48-213-248.ngrok-free.app/chat", {
+            const response = await fetch("https://439f-35-243-193-38.ngrok-free.app/chat", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
