@@ -223,7 +223,8 @@ document.addEventListener("DOMContentLoaded", function () {
         showTypingIndicator();
 
         try {
-            const response = await fetch("https://439f-35-243-193-38.ngrok-free.app/chat", {
+            const response = await fetch("https://chatbot.felaz-coffee.haidarazmi.tech/chat", {
+
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -233,6 +234,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
 
             const data = await response.json();
+            console.log(data);
             const reply = data.response || "Maaf, terjadi kesalahan dalam memproses permintaan Anda.";
             
             removeTypingIndicator();
