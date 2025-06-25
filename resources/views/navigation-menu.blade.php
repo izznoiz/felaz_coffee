@@ -61,29 +61,19 @@
             @auth
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
-                        @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
-                            <button class="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-gray-300 transition">
-                                <img class="w-9 h-9 rounded-full object-cover" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
-                            </button>
-                        @else
                             <button class="text-sm font-medium text-gray-700 hover:text-gray-900">
                                 {{ Auth::user()->name }}
                                 <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
-                        @endif
+                        
                     </x-slot>
 
                     <x-slot name="content">
                         <x-dropdown-link href="{{ route('profile.show') }}">
                             {{ __('Profile') }}
                         </x-dropdown-link>
-                        @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
-                            <x-dropdown-link href="{{ route('api-tokens.index') }}">
-                                {{ __('API Tokens') }}
-                            </x-dropdown-link>
-                        @endif
                         <form method="POST" action="{{ route('logout') }}" x-data>
                             @csrf
                             <x-dropdown-link href="{{ route('logout') }}" @click.prevent="$root.submit();">

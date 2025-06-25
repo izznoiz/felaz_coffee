@@ -8,13 +8,19 @@ use App\Http\Controllers\AdminOrderController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\XenditController;
+use App\Http\Controllers\GuestController;
 
+
+// Routes untuk Guest (tidak perlu login)
+Route::get('/', [GuestController::class, 'index'])->name('guest.index');
+Route::get('/product/{id}', [GuestController::class, 'showProduct'])->name('guest.product');
 
 
 // Default: Arahkan root '/' ke halaman login Jetstream
-Route::get('/', function () {
-    return redirect()->route('login');
-});
+// Route::get('/', function () {
+//     Route::get('/', [GuestController::class, 'index'])->name('guest.index');
+//     // return redirect()->route('login');
+// });
 
 // Hanya izinkan akses ke semua route ini jika sudah login & verifikasi
 Route::middleware([
@@ -23,7 +29,8 @@ Route::middleware([
     'verified',
 ])->group(function () {
 
-    // Route::get('/produk/{produk}', [ProdukController::class, 'show'])->name('produk.show');
+
+
     // === Admin ===
     Route::middleware('role:admin')->group(function () {
         Route::get('/admin/produk/create', [ProdukController::class, 'create'])->name('produk.create');
@@ -57,7 +64,9 @@ Route::middleware([
         Route::post('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
         Route::get('/checkout/success', [CartController::class, 'checkoutSuccess'])->name('checkout.success');
         Route::get('/checkout/success', [CartController::class, 'handlePaymentSuccess'])->name('checkout.success');
-        Route::get('/checkout/failed', function () {return view('checkout.failed');})->name('return.checkout');
+        Route::get('/checkout/failed', function () {
+            return view('checkout.failed');
+        })->name('return.checkout');
         Route::post('/xendit/webhook', [XenditController::class, 'handleWebhook']);
     });
 

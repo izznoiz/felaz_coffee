@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Felaz Coffee') }}</title>
+    <title>Felaz Coffee</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -243,7 +243,7 @@
                 showTypingIndicator();
 
                 try {
-                    const response = await fetch("https://d76f-35-243-193-38.ngrok-free.app/chat", {
+                    const response = await fetch("https://76a3-34-75-154-229.ngrok-free.app/chat", {
 
                         method: "POST",
                         headers: {
