@@ -1,5 +1,5 @@
 <x-app-layout>
-    <main class="pt-16 bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-100 min-h-screen relative overflow-hidden">
+    <main class="pt-16 bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-100 min-h-screen relative overflow-hidden" style="zoom: 80%;">
         <!-- Background Pattern -->
         <div class="absolute inset-0 opacity-10">
             <div class="absolute top-20 left-10 w-32 h-32 bg-amber-400 rounded-full blur-3xl animate-pulse"></div>

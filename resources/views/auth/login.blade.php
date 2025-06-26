@@ -40,10 +40,7 @@
                     </div>
 
                     <div class="flex items-center justify-between">
-                        <label for="remember_me" class="flex items-center">
-                            <x-checkbox id="remember_me" name="remember" class="text-coffee-medium" />
-                            <span class="ml-2 text-sm text-gray-700 font-sans">Ingat saya</span>
-                        </label>
+                    
 
                         @if (Route::has('password.request'))
                             <a class="text-sm text-coffee-medium hover:text-coffee-dark underline font-sans" href="{{ route('password.request') }}">
