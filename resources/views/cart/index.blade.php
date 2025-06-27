@@ -1,9 +1,4 @@
 <x-app-layout>
-    {{-- <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Daftar Pesanan') }}
-        </h2>
-    </x-slot> --}}
 
         <main class="pt-24">
     <div class="py-8">

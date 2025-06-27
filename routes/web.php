@@ -33,8 +33,8 @@ Route::middleware([
 
     // === Admin ===
     Route::middleware('role:admin')->group(function () {
-        Route::get('/admin/produk/create', [ProdukController::class, 'create'])->name('produk.create');
         Route::get('/admin/produk', [ProdukController::class, 'index'])->name('admin.produk.index');
+        Route::get('/admin/produk/create', [ProdukController::class, 'create'])->name('produk.create');
         Route::post('/produk', [ProdukController::class, 'store'])->name('produk.store');
         Route::get('/admin/produk/{produk}/edit', [ProdukController::class, 'edit'])->name('produk.edit');
         Route::put('/produk/{produk}', [ProdukController::class, 'update'])->name('produk.update');
@@ -71,7 +71,8 @@ Route::middleware([
     });
 
     Route::get('/dashboard', function () {
-        if (Auth::user()->hasRole(roles: 'admin')) {
+        $user = Auth::user();
+        if ($user->role === 'admin') { // or however your role is stored
             return redirect()->route('admin.produk.index');
         } else {
             return redirect()->route('produk.index');

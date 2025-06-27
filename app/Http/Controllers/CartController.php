@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Http;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrdersBatch;
+use App\Events\NewOrderPlaced;
 use Xendit\Xendit;
 // use App\Models\OrderItem;
 use Illuminate\Http\Request;
@@ -134,6 +135,8 @@ class CartController extends Controller
                 'status' => 'pending',
             ]);
         }
+
+        broadcast(new NewOrderPlaced($orderBatch));
 
         // Kosongkan keranjang & pending_checkouts
         CartItem::where('user_id', $pending->user_id)->delete();
