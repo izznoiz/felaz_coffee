@@ -122,7 +122,7 @@ class CartController extends Controller
             'user_id' => $pending->user_id,
             'total_price' => $totalPriceBatch,
             'status' => 'pending',
-            'user_name' => $pending->user_id, // atau ambil user name asli jika perlu
+            'user_name' => $pending->user_id, 
         ]);
 
         foreach ($cartItems as $item) {
@@ -136,7 +136,26 @@ class CartController extends Controller
             ]);
         }
 
-        broadcast(new NewOrderPlaced($orderBatch));
+
+          // PENTING: Load relasi sebelum broadcast
+        $orderBatch = $orderBatch->fresh(['user', 'orders.product']);
+        
+        // Debug log
+        \Log::info('Broadcasting new order:', [
+            'batch_id' => $orderBatch->id,
+            'user_name' => $orderBatch->user->name ?? 'Unknown',
+            'orders_count' => $orderBatch->orders->count()
+        ]);
+
+        // Broadcast event
+        try {
+            event(new NewOrderPlaced($orderBatch));
+            \Log::info('NewOrderPlaced event dispatched successfully');
+        } catch (\Exception $e) {
+            \Log::error('Failed to dispatch NewOrderPlaced event: ' . $e->getMessage());
+        }
+
+        // broadcast(new NewOrderPlaced($orderBatch));
 
         // Kosongkan keranjang & pending_checkouts
         CartItem::where('user_id', $pending->user_id)->delete();

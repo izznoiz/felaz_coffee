@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Models\OrdersBatch;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -13,12 +14,15 @@ use Illuminate\Queue\SerializesModels;
 class NewOrderPlaced implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
+    public $orderBatch;
+    public $broadcastData;
 
-    public $order;
-
-    public function __construct($order)
+    public function __construct(OrdersBatch $orderBatch, array $broadcastData = null)
     {
-        $this->order = $order;
+        $this->orderBatch = $orderBatch;
+        
+        // Jika broadcastData tidak disediakan, buat dari orderBatch
+        $this->broadcastData = $broadcastData ?: $this->formatBroadcastData($orderBatch);
     }
 
     public function broadcastOn()
@@ -34,12 +38,21 @@ class NewOrderPlaced implements ShouldBroadcast
     public function broadcastWith()
     {
         return [
-            'order_id' => $this->order->id,
-            'customer_name' => $this->order->user->name ?? 'Guest',
-            'total' => $this->order->total,
-            'items_count' => $this->order->items->count(),
-            'created_at' => $this->order->created_at->format('H:i:s'),
-            'message' => 'Pesanan baru masuk!'
+            'batch_id' => $this->batch->id,
+            'customer_name' => $this->batch->user->name ?? 'Guest',
+            'total' => $this->batch->total_price,
+            'items_count' => $this->batch->orders->count(),
+            'status' => $this->batch->status,
+            'created_at' => $this->batch->created_at->format('H:i:s'),
+            'message' => 'Pesanan baru masuk!',
+            // Add items for display
+            'items' => $this->batch->orders->map(function ($order) {
+                return [
+                    'product_name' => $order->product->nama ?? 'Unknown Product',
+                    'quantity' => $order->quantity,
+                    'price' => $order->total_price
+                ];
+            })
         ];
     }
 }

@@ -11,7 +11,7 @@
 
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Notifikasi Real-time -->
-            <div id="notification-area" class="mb-6 hidden">
+            <div id="notification-area" class="mb-6 hidden" style="position: fixed !important; top: 1rem; right: 1rem; z-index: 9999; max-width: 400px; margin-bottom: 0 !important;">
                 <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
                     <span class="block sm:inline" id="notification-text"></span>
                     <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
@@ -111,10 +111,10 @@
         </div>
     </div>
 
-    <audio id="notification-sound" preload="auto">
+    {{-- <audio id="notification-sound" preload="auto">
         <source src="{{ asset('sounds/notification.mp3') }}" type="audio/mpeg">
         <source src="{{ asset('sounds/notification.wav') }}" type="audio/wav">
-    </audio>
+    </audio> --}}
 
     @push('scripts')
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
@@ -130,6 +130,8 @@
 
         // Listen for new-order event
         channel.bind('new-order', function(data) {
+            console.log('New order received:', data);
+
             // Update statistics
             updateStatistics();
             
@@ -140,7 +142,7 @@
             showNotification(`${data.message} - Order #${data.order_id} dari ${data.customer_name}`);
             
             // Play notification sound
-            playNotificationSound();
+            // playNotificationSound();
             
             // Flash the live indicator
             flashLiveIndicator();
@@ -149,24 +151,37 @@
         function updateStatistics() {
             // Update total orders counter
             const totalOrdersEl = document.getElementById('total-orders');
-            const currentTotal = parseInt(totalOrdersEl.textContent);
-            totalOrdersEl.textContent = currentTotal + 1;
+            if (totalOrdersEl) {
+                const currentTotal = parseInt(totalOrdersEl.textContent) || 0;
+                totalOrdersEl.textContent = currentTotal + 1;
+            } else {
+                console.warn('Total orders element not found');
+            }
             
             // Update pending orders counter
             const pendingOrdersEl = document.getElementById('pending-orders');
-            const currentPending = parseInt(pendingOrdersEl.textContent);
-            pendingOrdersEl.textContent = currentPending + 1;
+            if (pendingOrdersEl) {
+                const currentPending = parseInt(pendingOrdersEl.textContent) || 0;
+                pendingOrdersEl.textContent = currentPending + 1;
+            } else {
+                console.warn('Pending orders element not found');
+            }
         }
 
         function addNewOrderToTable(data) {
             const tableBody = document.getElementById('orders-table-body');
+            
+            if (!tableBody) {
+                console.warn('Orders table body not found');
+                return;
+            }
             
             // Create new row HTML
             const newRowHTML = `
                 <tr id="order-row-${data.order_id}" class="bg-yellow-50 animate-pulse">
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#${data.order_id}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${data.customer_name}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Rp ${data.total.toLocaleString('id-ID')}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Rp ${Number(data.total).toLocaleString('id-ID')}</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
                             Pending
@@ -195,49 +210,84 @@
             const notificationArea = document.getElementById('notification-area');
             const notificationText = document.getElementById('notification-text');
             
-            notificationText.textContent = message;
-            notificationArea.classList.remove('hidden');
-            
-            // Auto hide after 5 seconds
-            setTimeout(() => {
-                hideNotification();
-            }, 5000);
+            if (notificationArea && notificationText) {
+                notificationText.textContent = message;
+                notificationArea.classList.remove('hidden');
+                
+                
+                // Auto hide after 5 seconds
+                setTimeout(() => {
+                    hideNotification();
+                }, 5000);
+            } else {
+                console.warn('Notification elements not found');
+                // Fallback to browser notification or alert
+                alert(message);
+            }
         }
 
         function hideNotification() {
             const notificationArea = document.getElementById('notification-area');
-            notificationArea.classList.add('hidden');
-        }
-
-        function playNotificationSound() {
-            const audio = document.getElementById('notification-sound');
-            if (audio) {
-                audio.play().catch(e => {
-                    console.log('Could not play notification sound:', e);
-                });
+            if (notificationArea) {
+                notificationArea.classList.add('hidden');
             }
         }
 
+        // function playNotificationSound() {
+        //     const audio = document.getElementById('notification-sound');
+        //     if (audio) {
+        //         audio.play().catch(e => {
+        //             console.log('Could not play notification sound:', e);
+        //         });
+        //     } else {
+        //         console.warn('Notification sound element not found');
+        //     }
+        // }
+
         function flashLiveIndicator() {
             const indicator = document.getElementById('live-indicator');
-            indicator.classList.add('bg-green-200');
-            setTimeout(() => {
-                indicator.classList.remove('bg-green-200');
-            }, 1000);
+            if (indicator) {
+                indicator.classList.add('bg-green-200');
+                setTimeout(() => {
+                    indicator.classList.remove('bg-green-200');
+                }, 1000);
+            } else {
+                console.warn('Live indicator element not found');
+            }
         }
 
         // Connection status
         pusher.connection.bind('connected', function() {
             console.log('WebSocket connected');
-            document.getElementById('live-indicator').classList.remove('bg-red-100', 'text-red-800');
-            document.getElementById('live-indicator').classList.add('bg-green-100', 'text-green-800');
+            const indicator = document.getElementById('live-indicator');
+            if (indicator) {
+                indicator.classList.remove('bg-red-100', 'text-red-800');
+                indicator.classList.add('bg-green-100', 'text-green-800');
+            }
         });
 
         pusher.connection.bind('disconnected', function() {
             console.log('WebSocket disconnected');
-            document.getElementById('live-indicator').classList.remove('bg-green-100', 'text-green-800');
-            document.getElementById('live-indicator').classList.add('bg-red-100', 'text-red-800');
+            const indicator = document.getElementById('live-indicator');
+            if (indicator) {
+                indicator.classList.remove('bg-green-100', 'text-green-800');
+                indicator.classList.add('bg-red-100', 'text-red-800');
+            }
+        });
+
+        // Debug connection
+        pusher.connection.bind('error', function(err) {
+            console.error('Pusher connection error:', err);
+        });
+
+        // Debug channel subscription
+        channel.bind('pusher:subscription_succeeded', function() {
+            console.log('Successfully subscribed to admin-orders channel');
+        });
+
+        channel.bind('pusher:subscription_error', function(error) {
+            console.error('Subscription error:', error);
         });
     </script>
-    @endpush
+@endpush
 </x-app-layout>
