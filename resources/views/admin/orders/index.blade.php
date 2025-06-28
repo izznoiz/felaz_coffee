@@ -1,3 +1,4 @@
+
 <x-app-layout>
     
 
@@ -111,7 +112,7 @@
         </div>
     </div>
 
-    {{-- <audio id="notification-sound" preload="auto">
+    {{-- <audio id="notification-sound" preload="auto">Add commentMore actions
         <source src="{{ asset('sounds/notification.mp3') }}" type="audio/mpeg">
         <source src="{{ asset('sounds/notification.wav') }}" type="audio/wav">
     </audio> --}}
@@ -125,160 +126,17 @@
             encrypted: true
         });
 
-        // Subscribe to admin-orders channel
-        const channel = pusher.subscribe('admin-orders');
-
-        // Listen for new-order event
-        channel.bind('new-order', function(data) {
-            console.log('New order received:', data);
-
-            // Update statistics
-            updateStatistics();
-            
-            // Add new order to table
-            addNewOrderToTable(data);
-            
-            // Show notification
-            showNotification(`${data.message} - Order #${data.order_id} dari ${data.customer_name}`);
-            
-            // Play notification sound
-            // playNotificationSound();
-            
-            // Flash the live indicator
-            flashLiveIndicator();
-        });
-
-        function updateStatistics() {
-            // Update total orders counter
-            const totalOrdersEl = document.getElementById('total-orders');
-            if (totalOrdersEl) {
-                const currentTotal = parseInt(totalOrdersEl.textContent) || 0;
-                totalOrdersEl.textContent = currentTotal + 1;
-            } else {
-                console.warn('Total orders element not found');
-            }
-            
-            // Update pending orders counter
-            const pendingOrdersEl = document.getElementById('pending-orders');
-            if (pendingOrdersEl) {
-                const currentPending = parseInt(pendingOrdersEl.textContent) || 0;
-                pendingOrdersEl.textContent = currentPending + 1;
-            } else {
-                console.warn('Pending orders element not found');
-            }
-        }
-
-        function addNewOrderToTable(data) {
-            const tableBody = document.getElementById('orders-table-body');
-            
-            if (!tableBody) {
-                console.warn('Orders table body not found');
-                return;
-            }
-            
-            // Create new row HTML
-            const newRowHTML = `
-                <tr id="order-row-${data.order_id}" class="bg-yellow-50 animate-pulse">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#${data.order_id}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${data.customer_name}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Rp ${Number(data.total).toLocaleString('id-ID')}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                            Pending
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${data.created_at}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <a href="/admin/orders/${data.order_id}" class="text-indigo-600 hover:text-indigo-900">Detail</a>
-                    </td>
-                </tr>
-            `;
-            
-            // Insert at the top of the table
-            tableBody.insertAdjacentHTML('afterbegin', newRowHTML);
-            
-            // Remove highlight after 3 seconds
-            setTimeout(() => {
-                const newRow = document.getElementById(`order-row-${data.order_id}`);
-                if (newRow) {
-                    newRow.classList.remove('bg-yellow-50', 'animate-pulse');
-                }
-            }, 3000);
-        }
-
-        function showNotification(message) {
-            const notificationArea = document.getElementById('notification-area');
-            const notificationText = document.getElementById('notification-text');
-            
-            if (notificationArea && notificationText) {
-                notificationText.textContent = message;
-                notificationArea.classList.remove('hidden');
-                
-                
-                // Auto hide after 5 seconds
-                setTimeout(() => {
-                    hideNotification();
-                }, 5000);
-            } else {
-                console.warn('Notification elements not found');
-                // Fallback to browser notification or alert
-                alert(message);
-            }
-        }
-
-        function hideNotification() {
-            const notificationArea = document.getElementById('notification-area');
-            if (notificationArea) {
-                notificationArea.classList.add('hidden');
-            }
-        }
-
-        // function playNotificationSound() {
-        //     const audio = document.getElementById('notification-sound');
-        //     if (audio) {
-        //         audio.play().catch(e => {
-        //             console.log('Could not play notification sound:', e);
-        //         });
-        //     } else {
-        //         console.warn('Notification sound element not found');
-        //     }
-        // }
-
-        function flashLiveIndicator() {
-            const indicator = document.getElementById('live-indicator');
-            if (indicator) {
-                indicator.classList.add('bg-green-200');
-                setTimeout(() => {
-                    indicator.classList.remove('bg-green-200');
-                }, 1000);
-            } else {
-                console.warn('Live indicator element not found');
-            }
-        }
-
-        // Connection status
-        pusher.connection.bind('connected', function() {
-            console.log('WebSocket connected');
-            const indicator = document.getElementById('live-indicator');
-            if (indicator) {
-                indicator.classList.remove('bg-red-100', 'text-red-800');
-                indicator.classList.add('bg-green-100', 'text-green-800');
-            }
-        });
-
-        pusher.connection.bind('disconnected', function() {
-            console.log('WebSocket disconnected');
-            const indicator = document.getElementById('live-indicator');
-            if (indicator) {
-                indicator.classList.remove('bg-green-100', 'text-green-800');
-                indicator.classList.add('bg-red-100', 'text-red-800');
-            }
-        });
-
         // Debug connection
+        pusher.connection.bind('connected', function() {
+            console.log('Pusher connected successfully!');
+        });
+
         pusher.connection.bind('error', function(err) {
             console.error('Pusher connection error:', err);
         });
+
+        // Subscribe to admin-orders channel
+        const channel = pusher.subscribe('admin-orders');
 
         // Debug channel subscription
         channel.bind('pusher:subscription_succeeded', function() {
@@ -287,6 +145,104 @@
 
         channel.bind('pusher:subscription_error', function(error) {
             console.error('Subscription error:', error);
+        });
+
+        // Listen for new-order event
+        channel.bind('new-order', function(data) {
+            console.log('NEW ORDER RECEIVED:', data);
+            // Update statistics
+            updateStatistics();
+            
+            // Add new order to table
+            addNewOrderToTable(data);
+
+            createLiveIndicator()
+            
+            // Show notification
+            // showNotification(`${data.message} - Order #${data.order_id} dari ${data.customer_name}`);
+            
+            // Play notification sound
+            // playNotificationSound();
+            
+            // Flash the live indicator
+            flashLiveIndicator();
+        });
+
+       function addNewOrderToTable(data) {
+    // Since you're using a card layout, not a table, modify accordingly
+    const ordersContainer = document.querySelector('.space-y-8');
+    if (!ordersContainer) {
+        console.warn('Orders container not found');
+        return;
+    }
+    
+    const newOrderHTML = `
+        <div id="order-${data.order_id}" class="bg-yellow-50 border-2 border-yellow-300 rounded-xl shadow-md p-6 animate-pulse">
+            <div class="flex justify-between items-center mb-4 pb-4 border-b border-stone-200">
+                <div>
+                    <h3 class="text-xl font-bold text-amber-900">Pesanan #${data.order_id} <span class="text-red-500">(BARU!)</span></h3>
+                    <p class="text-sm text-stone-600">Tanggal Pesan: ${new Date().toLocaleString('id-ID')}</p>
+                    <p class="text-sm text-stone-600">Pelanggan: ${data.customer_name}</p>
+                </div>
+                <div class="text-right space-y-1">
+                    <p class="text-lg font-semibold text-gray-700">
+                        Total: <span class="text-2xl font-extrabold text-amber-700">Rp ${data.total.toLocaleString('id-ID')}</span>
+                    </p>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                        Pending
+                    </span>
+                </div>
+            </div>
+            <h4 class="text-lg font-semibold text-gray-800 mb-3">Pesanan baru masuk!</h4>
+        </div>
+    `;
+    
+    ordersContainer.insertAdjacentHTML('afterbegin', newOrderHTML);
+    
+    // Remove highlight after 5 seconds
+    setTimeout(() => {
+        const newOrder = document.getElementById(`order-${data.order_id}`);
+        if (newOrder) {
+            newOrder.classList.remove('bg-yellow-50', 'border-yellow-300', 'animate-pulse');
+            newOrder.classList.add('bg-stone-50', 'border-stone-200');
+            const newLabel = newOrder.querySelector('.text-red-500');
+            if (newLabel) newLabel.remove();
+        }
+    }, 5000);
+}
+
+function updateStatistics() {
+    // Refresh the page or update specific counters if you have them
+    console.log('New order received - statistics updated');
+}
+
+function flashLiveIndicator() {
+    // Create a temporary indicator if it doesn't exist
+    const indicator = document.getElementById('live-indicator') || createLiveIndicator();
+    if (indicator) {
+        indicator.classList.add('bg-green-400', 'animate-bounce');
+        setTimeout(() => {
+            indicator.classList.remove('bg-green-400', 'animate-bounce');
+        }, 2000);
+    }
+}
+
+function createLiveIndicator() {
+    const indicator = document.createElement('div');
+    indicator.id = 'live-indicator';
+    indicator.className = 'fixed top-4 left-4 w-4 h-4 bg-green-500 rounded-full z-50';
+    indicator.title = 'Live Connection Active';
+    document.body.appendChild(indicator);
+    return indicator;
+}
+
+        // Connection status
+        pusher.connection.bind('connected', function() {
+            console.log('WebSocket connected');
+        });
+
+        pusher.connection.bind('disconnected', function() {
+            console.log('WebSocket disconnected');
         });
     </script>
 @endpush

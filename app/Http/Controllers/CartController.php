@@ -140,22 +140,8 @@ class CartController extends Controller
           // PENTING: Load relasi sebelum broadcast
         $orderBatch = $orderBatch->fresh(['user', 'orders.product']);
         
-        // Debug log
-        \Log::info('Broadcasting new order:', [
-            'batch_id' => $orderBatch->id,
-            'user_name' => $orderBatch->user->name ?? 'Unknown',
-            'orders_count' => $orderBatch->orders->count()
-        ]);
 
-        // Broadcast event
-        try {
-            event(new NewOrderPlaced($orderBatch));
-            \Log::info('NewOrderPlaced event dispatched successfully');
-        } catch (\Exception $e) {
-            \Log::error('Failed to dispatch NewOrderPlaced event: ' . $e->getMessage());
-        }
-
-        // broadcast(new NewOrderPlaced($orderBatch));
+        broadcast(new NewOrderPlaced($orderBatch));
 
         // Kosongkan keranjang & pending_checkouts
         CartItem::where('user_id', $pending->user_id)->delete();

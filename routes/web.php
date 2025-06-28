@@ -11,6 +11,7 @@ use App\Http\Controllers\XenditController;
 use App\Http\Controllers\GuestController;
 
 
+
 // Routes untuk Guest (tidak perlu login)
 Route::get('/', [GuestController::class, 'index'])->name('guest.index');
 Route::get('/product/{id}', [GuestController::class, 'showProduct'])->name('guest.product');
@@ -80,6 +81,16 @@ Route::middleware([
     })->name('dashboard');
 
 
+    Route::get('/test-websocket', function() {
+    event(new \App\Events\NewOrderPlaced((object)[
+        'id' => 999,
+        'user' => (object)['name' => 'Test User'],
+        'total_price' => 50000,
+        'created_at' => now()
+    ]));
+    
+    return 'Event triggered!';
+});
 
     Route::post('/chatbot', [ChatbotController::class, 'handle']);
 });

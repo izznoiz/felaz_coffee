@@ -2,27 +2,23 @@
 
 namespace App\Events;
 
-use App\Models\OrdersBatch;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class NewOrderPlaced implements ShouldBroadcast
+class NewOrderPlaced implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-    public $orderBatch;
-    public $broadcastData;
 
-    public function __construct(OrdersBatch $orderBatch, array $broadcastData = null)
+     public $orderBatch;
+
+    public function __construct($orderBatch)
     {
         $this->orderBatch = $orderBatch;
-        
-        // Jika broadcastData tidak disediakan, buat dari orderBatch
-        $this->broadcastData = $broadcastData ?: $this->formatBroadcastData($orderBatch);
     }
 
     public function broadcastOn()
@@ -36,23 +32,13 @@ class NewOrderPlaced implements ShouldBroadcast
     }
 
     public function broadcastWith()
-    {
-        return [
-            'batch_id' => $this->batch->id,
-            'customer_name' => $this->batch->user->name ?? 'Guest',
-            'total' => $this->batch->total_price,
-            'items_count' => $this->batch->orders->count(),
-            'status' => $this->batch->status,
-            'created_at' => $this->batch->created_at->format('H:i:s'),
+{
+     return [
+            'order_id' => $this->orderBatch->id,
+            'customer_name' => $this->orderBatch->user->name ?? 'Guest',
+            'total' => $this->orderBatch->total_price,
             'message' => 'Pesanan baru masuk!',
-            // Add items for display
-            'items' => $this->batch->orders->map(function ($order) {
-                return [
-                    'product_name' => $order->product->nama ?? 'Unknown Product',
-                    'quantity' => $order->quantity,
-                    'price' => $order->total_price
-                ];
-            })
+            'created_at' => $this->orderBatch->created_at->format('d M Y, H:i'),
         ];
-    }
+}
 }
