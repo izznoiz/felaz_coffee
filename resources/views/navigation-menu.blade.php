@@ -111,6 +111,18 @@
             </x-responsive-nav-link>
         @endif
 
+         @if(auth()->check() && $user->role === 'admin')
+                <x-responsive-nav-link href="{{ route('produk.create') }}" :active="request()->routeIs('produk.create')">
+                    {{ __('Tambah Produk') }}
+                </x-responsive-nav-link>
+            @endif
+
+            @if(auth()->check() && $user->role === 'admin')
+                <x-responsive-nav-link href="{{ route('admin.orders.index') }}" :active="request()->routeIs('admin.orders.index')">
+                    {{ __('Pesanan') }}
+                </x-responsive-nav-link>
+            @endif
+
         @auth
             <x-responsive-nav-link href="{{ route('profile.show') }}">
                 {{ __('Profile') }}

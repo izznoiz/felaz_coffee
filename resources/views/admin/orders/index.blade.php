@@ -147,26 +147,6 @@
             console.error('Subscription error:', error);
         });
 
-        // // Listen for new-order event
-        // channel.bind('new-order', function(data) {
-        //     console.log('NEW ORDER RECEIVED:', data);
-        //     // Update statistics
-        //     updateStatistics();
-            
-        //     // Add new order to table
-        //     addNewOrderToTable(data);
-
-        //     createLiveIndicator()
-            
-        //     // Show notification
-        //     // showNotification(`${data.message} - Order #${data.order_id} dari ${data.customer_name}`);
-            
-        //     // Play notification sound
-        //     // playNotificationSound();
-            
-        //     // Flash the live indicator
-        //     flashLiveIndicator();
-        // });
 
        function addNewOrderToTable(data) {
     const ordersContainer = document.querySelector('.space-y-8');

@@ -64,6 +64,17 @@
 
             const form = event.target;
 
+            // Show loading
+            Swal.fire({
+                title: 'Menambahkan ke keranjang...',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
             fetch(form.action, {
                 method: 'POST',
                 body: new FormData(form),
@@ -72,19 +83,40 @@
                     'Accept': 'application/json',
                 },
             })
-            .then(response => {
-                if (response.ok) {
-                    alert('Produk berhasil ditambahkan ke keranjang!');
+
+                .then(response => {
+            if (response.ok) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: 'Produk berhasil ditambahkan ke keranjang',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    customClass: {
+                        popup: 'custom-swal'
+                    }
+                }).then(() => {
                     window.location.href = "{{ route('produk.index') }}";
-                } else {
-                    return response.json().then(data => {
-                        throw new Error(data.message || 'Terjadi kesalahan.');
+                });
+            } else {
+                return response.json().then(data => {
+                    throw new Error(data.message || 'Terjadi kesalahan.');
+                });
+            }
+        })
+
+                .catch(error => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Gagal menambahkan ke keranjang: ' + error.message,
+                        customClass: {
+                            popup: 'custom-swal'
+                        }
                     });
-                }
-            })
-            .catch(error => {
-                alert('Gagal menambahkan ke keranjang: ' + error.message);
-            });
+                });
+
 
             return false;
         }
