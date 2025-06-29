@@ -33,12 +33,21 @@ class NewOrderPlaced implements ShouldBroadcastNow
 
     public function broadcastWith()
 {
-     return [
+      return [
             'order_id' => $this->orderBatch->id,
             'customer_name' => $this->orderBatch->user->name ?? 'Guest',
             'total' => $this->orderBatch->total_price,
             'message' => 'Pesanan baru masuk!',
             'created_at' => $this->orderBatch->created_at->format('d M Y, H:i'),
+            // TAMBAHAN: Data items untuk ditampilkan di frontend
+            'items' => $this->orderBatch->orders->map(function($order) {
+                return [
+                    'product_nama' => $order->product->nama ?? 'Produk tidak ditemukan',
+                    'product_gambar' => $order->product->gambar ?? null,
+                    'quantity' => $order->quantity,
+                    'total_price' => $order->total_price ?? 0
+                ];
+            })->toArray()
         ];
 }
 }

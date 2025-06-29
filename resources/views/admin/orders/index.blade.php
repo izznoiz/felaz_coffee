@@ -147,53 +147,101 @@
             console.error('Subscription error:', error);
         });
 
-        // Listen for new-order event
-        channel.bind('new-order', function(data) {
-            console.log('NEW ORDER RECEIVED:', data);
-            // Update statistics
-            updateStatistics();
+        // // Listen for new-order event
+        // channel.bind('new-order', function(data) {
+        //     console.log('NEW ORDER RECEIVED:', data);
+        //     // Update statistics
+        //     updateStatistics();
             
-            // Add new order to table
-            addNewOrderToTable(data);
+        //     // Add new order to table
+        //     addNewOrderToTable(data);
 
-            createLiveIndicator()
+        //     createLiveIndicator()
             
-            // Show notification
-            // showNotification(`${data.message} - Order #${data.order_id} dari ${data.customer_name}`);
+        //     // Show notification
+        //     // showNotification(`${data.message} - Order #${data.order_id} dari ${data.customer_name}`);
             
-            // Play notification sound
-            // playNotificationSound();
+        //     // Play notification sound
+        //     // playNotificationSound();
             
-            // Flash the live indicator
-            flashLiveIndicator();
-        });
+        //     // Flash the live indicator
+        //     flashLiveIndicator();
+        // });
 
        function addNewOrderToTable(data) {
-    // Since you're using a card layout, not a table, modify accordingly
     const ordersContainer = document.querySelector('.space-y-8');
     if (!ordersContainer) {
         console.warn('Orders container not found');
         return;
     }
     
+    // Format tanggal
+    const orderDate = new Date().toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    // Generate detail items HTML
+    let itemsHTML = '';
+    if (data.items && Array.isArray(data.items) && data.items.length > 0) {
+        console.log('Items found:', data.items); // Debug log
+        itemsHTML = data.items.map(item =>  `
+            <div class="flex items-center space-x-4 border-b pb-4 last:border-b-0 last:pb-0">
+                ${item.product_gambar ? 
+                    `<img src="/storage/${item.product_gambar}" alt="${item.product_nama}" class="w-16 h-16 object-cover rounded-lg shadow">` :
+                    `<div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 text-xs">No Image</div>`
+                }
+                <div class="flex-1">
+                    <p class="text-lg font-medium text-gray-900">${item.product_nama || 'Produk tidak ditemukan'}</p>
+                    <p class="text-sm text-gray-600">Kuantitas: ${item.quantity}</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-md font-semibold text-gray-700">Rp ${(item.total_price || 0).toLocaleString('id-ID')}</p>
+                </div>
+            </div>
+        `).join('');
+    } else {
+        console.log('No items found or items is not an array:', data.items); // Debug log
+        itemsHTML = '<p class="text-gray-500">Detail item tidak tersedia</p>';
+    }
+    
     const newOrderHTML = `
         <div id="order-${data.order_id}" class="bg-yellow-50 border-2 border-yellow-300 rounded-xl shadow-md p-6 animate-pulse">
             <div class="flex justify-between items-center mb-4 pb-4 border-b border-stone-200">
                 <div>
-                    <h3 class="text-xl font-bold text-amber-900">Pesanan #${data.order_id} <span class="text-red-500">(BARU!)</span></h3>
-                    <p class="text-sm text-stone-600">Tanggal Pesan: ${new Date().toLocaleString('id-ID')}</p>
-                    <p class="text-sm text-stone-600">Pelanggan: ${data.customer_name}</p>
+                    <h3 class="text-xl font-bold text-amber-900">
+                        Pesanan #${data.order_id} 
+                        <span class="text-red-500 text-sm font-normal">(BARU!)</span>
+                    </h3>
+                    <p class="text-sm text-stone-600">Tanggal Pesan: ${orderDate}</p>
+                    <p class="text-sm text-stone-600">Pelanggan: ${data.customer_name || 'Tidak diketahui'}</p>
                 </div>
                 <div class="text-right space-y-1">
                     <p class="text-lg font-semibold text-gray-700">
-                        Total: <span class="text-2xl font-extrabold text-amber-700">Rp ${data.total.toLocaleString('id-ID')}</span>
+                        Total:
+                        <span class="text-2xl font-extrabold text-amber-700">
+                            Rp ${(data.total || 0).toLocaleString('id-ID')}
+                        </span>
                     </p>
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
                         Pending
                     </span>
                 </div>
             </div>
-            <h4 class="text-lg font-semibold text-gray-800 mb-3">Pesanan baru masuk!</h4>
+
+            <h4 class="text-lg font-semibold text-gray-800 mb-3">Detail Item:</h4>
+            <div class="space-y-4">
+                ${itemsHTML}
+            </div>
+
+            <div class="mt-4 text-right">
+                <a href="/admin/orders/${data.order_id}" class="inline-block text-sm text-blue-600 hover:underline">
+                    Lihat detail
+                </a>
+            </div>
         </div>
     `;
     
@@ -216,14 +264,19 @@ function updateStatistics() {
     console.log('New order received - statistics updated');
 }
 
-function flashLiveIndicator() {
-    // Create a temporary indicator if it doesn't exist
-    const indicator = document.getElementById('live-indicator') || createLiveIndicator();
-    if (indicator) {
-        indicator.classList.add('bg-green-400', 'animate-bounce');
+// Fungsi untuk menampilkan notifikasi
+function showNotification(message) {
+    const notificationArea = document.getElementById('notification-area');
+    const notificationText = document.getElementById('notification-text');
+    
+    if (notificationArea && notificationText) {
+        notificationText.textContent = message;
+        notificationArea.classList.remove('hidden');
+        
+        // Auto hide after 5 seconds
         setTimeout(() => {
-            indicator.classList.remove('bg-green-400', 'animate-bounce');
-        }, 2000);
+            hideNotification();
+        }, 5000);
     }
 }
 
@@ -235,6 +288,46 @@ function createLiveIndicator() {
     document.body.appendChild(indicator);
     return indicator;
 }
+
+function flashLiveIndicator() {
+    // Create a temporary indicator if it doesn't exist
+    const indicator = document.getElementById('live-indicator') || createLiveIndicator();
+    if (indicator) {
+        indicator.classList.add('bg-green-400', 'animate-bounce');
+        setTimeout(() => {
+            indicator.classList.remove('bg-green-400', 'animate-bounce');
+        }, 2000);
+    }
+}
+
+function hideNotification() {
+    const notificationArea = document.getElementById('notification-area');
+    if (notificationArea) {
+        notificationArea.classList.add('hidden');
+    }
+}
+
+// Update event listener untuk menampilkan notifikasi yang lebih informatif
+channel.bind('new-order', function(data) {
+    console.log('NEW ORDER RECEIVED:', data);
+    
+    // Update statistics
+    updateStatistics();
+    
+    // Add new order to table dengan format lengkap
+    addNewOrderToTable(data);
+
+    // Create live indicator
+    // createLiveIndicator();
+    
+    // Show notification dengan detail pesanan
+    const itemCount = data.items ? data.items.length : 0;
+    const notificationMessage = `Pesanan baru masuk! Order #${data.order_id} dari ${data.customer_name} - ${itemCount} item - Total: Rp ${(data.total || 0).toLocaleString('id-ID')}`;
+    showNotification(notificationMessage);
+    
+    // Flash the live indicator
+    // flashLiveIndicator();
+});
 
         // Connection status
         pusher.connection.bind('connected', function() {

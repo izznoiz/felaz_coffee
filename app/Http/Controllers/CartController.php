@@ -140,7 +140,14 @@ class CartController extends Controller
           // PENTING: Load relasi sebelum broadcast
         $orderBatch = $orderBatch->fresh(['user', 'orders.product']);
         
-
+        // Debug: Cek apakah relasi sudah ter-load
+        \Log::info('OrderBatch data for broadcast:', [
+            'id' => $orderBatch->id,
+            'user' => $orderBatch->user ? $orderBatch->user->name : 'No user',
+            'orders_count' => $orderBatch->orders->count(),
+            'first_product' => $orderBatch->orders->first() ? $orderBatch->orders->first()->product->nama ?? 'No product name' : 'No orders'
+        ]);
+        
         broadcast(new NewOrderPlaced($orderBatch));
 
         // Kosongkan keranjang & pending_checkouts
