@@ -6,15 +6,28 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\AdminOrderController;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\XenditController;
 use App\Http\Controllers\GuestController;
+use App\Http\Controllers\EmailVerificationNotificationController;
 
 
 
 // Routes untuk Guest (tidak perlu login)
 Route::get('/', [GuestController::class, 'index'])->name('guest.index');
 Route::get('/product/{id}', [GuestController::class, 'showProduct'])->name('guest.product');
+
+// Route untuk menampilkan halaman verify email
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->middleware('auth')->name('verification.notice');
+
+// Route untuk memproses link verifikasi
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+    return redirect('/dashboard');
+})->middleware(['auth', 'signed'])->name('verification.verify');
 
 
 // Default: Arahkan root '/' ke halaman login Jetstream
@@ -72,14 +85,18 @@ Route::middleware([
     });
 
     Route::get('/dashboard', function () {
-        $user = Auth::user();
-        if ($user->role === 'admin') { // or however your role is stored
-            return redirect()->route('admin.produk.index');
-        } else {
-            return redirect()->route('produk.index');
-        }
-    })->name('dashboard');
+    $user = Auth::user();
+    if ($user->role === 'admin') {
+        return redirect()->route('admin.produk.index');
+    } else {
+        return redirect()->route('produk.index');
+    }
+})->middleware(['auth', 'verified'])->name('dashboard');
 
+        // Laravel 8+
+    Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
+        ->middleware(['auth', 'throttle:6,1'])
+        ->name('verification.send');
 
     Route::get('/test-websocket', function() {
     event(new \App\Events\NewOrderPlaced((object)[
