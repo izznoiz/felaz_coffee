@@ -30,12 +30,6 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
 })->middleware(['auth', 'signed'])->name('verification.verify');
 
 
-// Default: Arahkan root '/' ke halaman login Jetstream
-// Route::get('/', function () {
-//     Route::get('/', [GuestController::class, 'index'])->name('guest.index');
-//     // return redirect()->route('login');
-// });
-
 // Hanya izinkan akses ke semua route ini jika sudah login & verifikasi
 Route::middleware([
     'auth:sanctum',
