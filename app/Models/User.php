@@ -10,6 +10,7 @@ use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Notifications\CustomEmailVerification;
 
 
 
@@ -74,6 +75,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(CartItem::class);
     }
     
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new CustomEmailVerification);
+    }
+
 
     public function orders()
     {
