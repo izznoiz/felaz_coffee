@@ -259,7 +259,7 @@
                 showTypingIndicator();
 
                 try {
-                    const response = await fetch("https://1970-35-201-194-133.ngrok-free.app/chat", {
+                    const response = await fetch("https://chatbot.felaz-coffee.haidarazmi.tech/chat", {
 
                         method: "POST",
                         headers: {
