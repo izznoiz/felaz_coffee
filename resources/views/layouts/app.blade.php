@@ -165,12 +165,18 @@
             function addUserMessage(message) {
                 const messageDiv = document.createElement("div");
                 messageDiv.className = "flex justify-end mb-3";
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('id-ID', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: false 
+                });
                 messageDiv.innerHTML = `
             <div class="max-w-xs lg:max-w-md">
                 <div class="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-4 py-3 rounded-2xl rounded-br-md shadow-md">
                     <p class="text-sm">${message}</p>
                 </div>
-                <p class="text-xs text-gray-400 mt-1 text-right">Baru saja</p>
+                <p class="text-xs text-gray-400 mt-1 text-right">${timeString}</p>
             </div>
         `;
                 chatBox.appendChild(messageDiv);
@@ -181,6 +187,12 @@
             function addBotMessage(message) {
                 const messageDiv = document.createElement("div");
                 messageDiv.className = "flex justify-start mb-3";
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('id-ID', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: false 
+                });
 
                 const messageWithLinks = linkify(message);
 
@@ -194,7 +206,7 @@
                         <div class="bg-white border border-gray-200 px-4 py-3 rounded-2xl rounded-bl-md shadow-md">
                             <p class="text-sm text-gray-800">${messageWithLinks}</p>
                         </div>
-                        <p class="text-xs text-gray-400 mt-1 ml-2">Baru saja</p>
+                        <p class="text-xs text-gray-400 mt-1 ml-2">${timeString}</p>
                     </div>
                 </div>
             </div>
@@ -247,7 +259,7 @@
                 showTypingIndicator();
 
                 try {
-                    const response = await fetch("https://76a3-34-75-154-229.ngrok-free.app/chat", {
+                    const response = await fetch("https://1970-35-201-194-133.ngrok-free.app/chat", {
 
                         method: "POST",
                         headers: {
